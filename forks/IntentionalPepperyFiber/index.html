@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clicker Counter with Goal Counter and Odometer</title>
+  <link rel="stylesheet" href="odometer-theme-default.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:700">
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Roboto, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .counter {
+      font-size: 72px;
+      font-weight: 700;
+    }
+
+    .goal {
+      color: yellow;
+      font-weight: 700;
+    }
+
+    .btn {
+      font-size: 24px;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #555;
+      color: white;
+    }
+
+    .btn-left {
+      order: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Clicker Counter with Goal Counter and Odometer</h1>
+    <div id="count" class="counter odometer">0</div>
+    <div id="goal" class="goal odometer"></div>
+    <button class="btn btn-left" onclick="increment()">+1</button>
+    <button class="btn" onclick="decrement()">-1</button>
+    <button class="btn" onclick="reset()">Reset</button>
+  </div>
+
+  <script src="odometer.js"></script>
+  <script>
+    let count = 0;
+    let clickCount = 0;
+    const countElement = document.getElementById('count');
+    const odometerCount = new Odometer({
+      el: countElement,
+      value: 0,
+      format: '(,ddd)',
+      theme: 'default',
+    });
+
+    const goalElement = document.getElementById('goal');
+    const odometerGoal = new Odometer({
+      el: goalElement,
+      value: 0,
+      format: '(,ddd)',
+      theme: 'default',
+    });
+
+    function updateCounter() {
+      odometerCount.update(count);
+    }
+
+    function updateGoal() {
+      const milestones = [1000, 5000, 10000, 50000, 100000];
+      let remaining = 0;
+      let nextGoal = 0;
+
+      for (let i = 0; i < milestones.length; i++) {
+        const milestone = milestones[i];
+        if (count < milestone) {
+          remaining = milestone - count;
+          nextGoal = milestone;
+          break;
+        }
+      }
+
+      if (remaining > 0) {
+        odometerGoal.update(remaining);
+        goalElement.style.visibility = 'visible';
+      } else {
+        goalElement.style.visibility = 'hidden';
+      }
+    }
+
+    function increment() {
+      count++;
+      clickCount++;
+      updateCounter();
+      setTimeout(updateGoal, 2000);
+    }
+
+    function decrement() {
+      count--;
+      clickCount--;
+      updateCounter();
+      setTimeout(updateGoal, 2000);
+    }
+
+    function reset() {
+      count = 0;
+      clickCount = 0;
+      updateCounter();
+      setTimeout(updateGoal, 2000);
+    }
+
+    setInterval(updateCounter, 2000);
+  </script>
+</body>
+</html>
